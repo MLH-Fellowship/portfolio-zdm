@@ -41,6 +41,7 @@ For each of these tasks, you should create an [Issue](https://docs.github.com/en
 - Zidanni, Manav, Deeptanshu: Reviewed exising PRs on call and merged
 - Zidanni: Fixed the navbar to make it dynamically display pages
 - Deeptanshu: Reviewed and Approved Zidanni's dyamic navbar PR
+- Deeptanshu: Added personal photo, about me + styling, personal map + styling
 
 ## Installation
 
