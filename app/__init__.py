@@ -99,7 +99,7 @@ def hobbies():
     ZIDANNI_HOBBIES = [
         {'title': 'Game Development', 'about': 'I like building story games in my free time and doing game jams.', 'icon': 'https://cdn-icons-png.flaticon.com/512/1005/1005141.png'},
         {'title': 'Reading', 'about': 'My favorite book series is the Three Body Problem. I also like reading fantasy like The Hobbit.', 'icon': 'https://cdn-icons-png.flaticon.com/512/2436/2436882.png'},
-        {'title': 'Photography', 'about': 'I like taking goofy pictures of my friends lol!', 'icon': 'https://cdn-icons-png.flaticon.com/512/1042/1042390.png'},
+        {'title': 'Photography', 'about': 'I like taking goofy pictures of my friends lol! TEXT CHANGE FOR WEEK 3', 'icon': 'https://cdn-icons-png.flaticon.com/512/1042/1042390.png'},
     ]
     
     # Deeptanshu's hobbies
