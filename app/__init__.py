@@ -1,6 +1,9 @@
 import os
 from flask import Flask, render_template, request
 from dotenv import load_dotenv
+from peewee import *
+import datetime
+from playhouse.shortcuts import model_to_dict
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -14,11 +17,34 @@ env = Environment(
 load_dotenv()
 app = Flask(__name__)
 
+mydb = MySQLDatabase(
+    os.getenv("MYSQL_DATABASE"),
+    host=os.getenv("MYSQL_HOST"),
+    user=os.getenv("MYSQL_USER"),
+    password=os.getenv("MYSQL_PASSWORD"),
+    port=3306
+)
+
+print(mydb)
+
+class TimelinePost(Model):
+    name = CharField()
+    email = CharField()
+    content = TextField()
+    created_at = DateTimeField(default=datetime.datetime.now)
+    
+    class Meta:
+        database = mydb
+        
+mydb.connect()
+mydb.create_tables([TimelinePost])
+
 NAV_ITEMS = [
     {'name': 'Zidanni', 'url': '/', 'route': 'index'},
     {'name': 'Manav', 'url': '/manav', 'route': 'manav'},
     {'name': 'Deeptanshu', 'url': '/deeptanshu', 'route': 'deeptanshu'},
-    {'name': 'Hobbies', 'url': '/hobbies', 'route': 'hobbies'}
+    {'name': 'Hobbies', 'url': '/hobbies', 'route': 'hobbies'},
+    {'name': 'Timeline', 'url': '/timeline', 'route': 'timeline'}
 ]
 
 def get_nav_data(current_route):
@@ -119,3 +145,27 @@ def hobbies():
                           zidanni_hobbies=ZIDANNI_HOBBIES,
                           deeptanshu_hobbies=DEEPTANSHU_HOBBIES,
                           about_me_text=about_text)
+
+@app.route('/timeline')
+def timeline():
+    nav_data = get_nav_data('timeline')
+    return render_template('timeline.html', title="Timeline", url=os.getenv("URL"), nav_items=nav_data)
+
+@app.route('/api/timeline_post', methods=['POST'])
+def post_timeline_post():
+   name = request.form['name']
+   email = request.form['email']
+   content = request.form['content']
+   timeline_post = TimelinePost.create(name=name, email=email, content=content)
+   
+   return model_to_dict(timeline_post)
+
+@app.route('/api/timeline_post', methods=['GET'])
+def get_timeline_post():
+   return {
+       'timeline_posts': [
+           model_to_dict(p)
+           for p in
+TimelinePost.select().order_by(TimelinePost.created_at.desc())
+       ]
+   }

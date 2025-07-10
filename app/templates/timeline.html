@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta property="og:title" content="Personal Portfolio">
+    <meta property="og:description" content="My Personal Portfolio">
+    <meta property="og:url" content="{{ url }}">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+    <link lang='sass' rel="stylesheet" href="./static/styles/main.css">
+    <link rel='icon' href='./static/img/favicon.ico' type='image/x-icon' />
+    <title>{{ title }}</title>
+    
+    <style>
+        .timeline-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .timeline-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .submit-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .timeline-posts {
+            margin-top: 40px;
+        }
+        
+        .timeline-post {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .post-author {
+            font-weight: 600;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .post-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .post-content {
+            color: #444;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .no-posts {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="nav-bar">
+        <div class="nav-content">
+            <a href="/">
+                <div class="nav-logo">
+                    <img src="./static/img/logo.svg" />
+                </div>
+            </a>
+            <nav class="nav-links">
+                {% for item in nav_items %}
+                    <a href="{{ item.url }}" {% if item.is_current %}class="current-page"{% endif %}>{{ item.name }}</a>
+                {% endfor %}
+            </nav>
+        </div>
+    </header>
+
+    <div class="profile">
+        <div id="profile-picture" class="profile-picture">
+            <img src="https://cdn-icons-png.flaticon.com/512/3652/3652191.png" alt="Timeline">
+        </div>
+        <h1>{{ title }}</h1>
+    </div>
+
+    <div class="timeline-container">
+        <div class="timeline-form">
+            <h2>timeline post maker</h2>
+            <div id="message"></div>
+            
+            <form id="timeline-form">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Content:</label>
+                    <textarea id="content" name="content" placeholder="What's on your mind?" required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit-btn"> Post</button>
+            </form>
+        </div>
+
+        <div class="timeline-posts">
+            <h2>Timeline Posts</h2>
+            <div id="posts-container">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTimelinePosts();
+        });
+
+        document.getElementById('timeline-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const messageDiv = document.getElementById('message');
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('content', document.getElementById('content').value);
+            
+            submitBtn.disabled = true;            
+            messageDiv.innerHTML = '';
+            
+            fetch('/api/timeline_post', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('timeline-form').reset();
+                loadTimelinePosts();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Post';
+            });
+        });
+
+        function loadTimelinePosts() {
+            const postsContainer = document.getElementById('posts-container');
+            
+            fetch('/api/timeline_post')
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.timeline_posts && data.timeline_posts.length > 0) {
+                        postsContainer.innerHTML = data.timeline_posts.map(post => `
+                            <div class="timeline-post">
+                                <div class="post-header">
+                                    <div class="post-author">${escapeHtml(post.name)}</div>
+                                    <div class="post-date">${formatDate(post.created_at)}</div>
+                                </div>
+                                <div class="post-content">${escapeHtml(post.content)}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        postsContainer.innerHTML = '<div class="no-posts">No posts</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('error', error);
+                });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html> 
