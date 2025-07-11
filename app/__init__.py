@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 from dotenv import load_dotenv
 from peewee import MySQLDatabase
 from jinja2 import Environment, PackageLoader, select_autoescape
+from playhouse.shortcuts import model_to_dict
 
 # Initialize Jinja2 environment
 
@@ -22,7 +23,17 @@ mydb = MySQLDatabase(
     port=3306,
 )
 
-print(mydb)
+class TimelinePost(Model):
+    name = CharField()
+    email = CharField()
+    content = TextField()
+    created_at = DateTimeField(default=datetime.now)
+
+    class Meta:
+        database = mydb
+
+mydb.connect()
+mydb.create_tables([TimelinePost])
 
 NAV_ITEMS = [
     {'name': 'Zidanni', 'url': '/', 'route': 'index'},
@@ -129,3 +140,23 @@ def hobbies():
                           zidanni_hobbies=ZIDANNI_HOBBIES,
                           deeptanshu_hobbies=DEEPTANSHU_HOBBIES,
                           about_me_text=about_text)
+
+
+@app.route('/api/timeline_post', methods=['POST'])
+def post_time_line_post():
+    name = request.json['name']
+    email = request.json['email']
+    content = request.json['content']
+
+    timeline_post = TimelinePost.create(name=name, email=email, content=content)
+    
+    return model_to_dict(timeline_post)
+
+@app.route('/api/timeline_post', methods=['GET'])
+def get_time_line_post():
+    return {
+        'timeline_posts': [
+            model_to_dict(post)
+            for post in TimelinePost.select().order_by(TimelinePost.created_at.desc())
+        ]
+    }
