@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request
 from dotenv import load_dotenv
-from peewee import MySQLDatabase
+from peewee import MySQLDatabase, Model, CharField, TextField, DateTimeField
 from jinja2 import Environment, PackageLoader, select_autoescape
 from playhouse.shortcuts import model_to_dict
 
