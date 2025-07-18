@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, render_template, request
 from dotenv import load_dotenv
 from peewee import MySQLDatabase, SqliteDatabase, Model, CharField, TextField, DateTimeField
@@ -150,9 +151,19 @@ def hobbies():
 
 @app.route('/api/timeline_post', methods=['POST'])
 def post_time_line_post():
-    name = request.json['name']
-    email = request.json['email']
-    content = request.json['content']
+
+    name = request.json.get('name')
+    if not name:
+        return "Invalid name", 400
+    
+    email = request.json.get('email')
+    # adapted from https://www.regular-expressions.info/email.html
+    if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        return "Invalid email", 400
+    
+    content = request.json.get('content')
+    if not content:
+        return "Invalid content", 400
 
     timeline_post = TimelinePost.create(name=name, email=email, content=content)
     
