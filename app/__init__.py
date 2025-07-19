@@ -1,9 +1,10 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from peewee import *
 import datetime
 from playhouse.shortcuts import model_to_dict
+import re
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -26,6 +27,17 @@ mydb = MySQLDatabase(
 )
 
 print(mydb)
+
+if os.getenv("TESTING") == "true":
+    mydb = SqliteDatabase('file:memory?mode=memory&cache=shared', uri=True)
+else:
+    mydb = MySQLDatabase(
+        os.getenv("MYSQL_DATABASE"),
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD"),
+        port=3306
+    )
 
 class TimelinePost(Model):
     name = CharField()
@@ -153,12 +165,26 @@ def timeline():
 
 @app.route('/api/timeline_post', methods=['POST'])
 def post_timeline_post():
-   name = request.form['name']
-   email = request.form['email']
-   content = request.form['content']
+   name = request.form.get('name', '').strip()
+   email = request.form.get('email', '').strip()
+   content = request.form.get('content', '').strip()
+   
+   # Validate name
+   if not name:
+       return "Invalid name", 400
+   
+   # Validate email format
+   email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+   if not re.match(email_pattern, email):
+       return "Invalid email", 400
+   
+   # Validate content
+   if not content:
+       return "Invalid content", 400
+   
    timeline_post = TimelinePost.create(name=name, email=email, content=content)
    
-   return model_to_dict(timeline_post)
+   return model_to_dict(timeline_post), 201
 
 @app.route('/api/timeline_post', methods=['GET'])
 def get_timeline_post():
