@@ -1,29 +1,35 @@
 version: "3"
 services:
-  myportfolio:
-    container_name: myportfolio
-    build: .
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      - mysql
+ myportfolio:
+   container_name: myportfolio
+   build: .
+   restart: always
+   env_file:
+     - .env
+   depends_on:
+     mysql:
+       condition: service_healthy
 
-  mysql:
-    container_name: mysql
-    image: mariadb
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - mydatabase:/var/lib/mysql
+ mysql:
+   container_name: mysql
+   image: mariadb
+   restart: always
+   healthcheck:
+     test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/3306'"]
+     interval: 10s
+     timeout: 5s
+     retries: 5
+   env_file:
+     - .env
+   volumes:
+     - mydatabase:/var/lib/mysql
 
   nginx:
     container_name: nginx
     image: jonasal/nginx-certbot
     restart: always
     environment:
-      - CERTBOT_EMAIL=name@example.com
+      - CERTBOT_EMAIL=zidanni.clerigo@gmail.com
     ports:
       - 80:80
       - 443:443
