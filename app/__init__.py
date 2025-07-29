@@ -74,7 +74,7 @@ def index():
     template = env.get_template("profile.html")
     
     EXPERIENCE = [
-        {'company': 'Independent', 'title': 'Software Developer', 'date': 'September 2024 – Present'},
+        {'company': 'WEEK 7 CHANGE | Independent', 'title': 'Software Developer', 'date': 'September 2024 – Present'},
         {'company': 'Elmhurst Care Center Nursing Home', 'title': 'Software Developer', 'date': 'July 2022 – August 2023'},
         {'company': 'NYU Tandon School of Engineering', 'title': 'Researcher and Game Developer', 'date': 'April 2022 – June 2024'},
     ]
