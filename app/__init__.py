@@ -80,7 +80,7 @@ def index():
     ]
 
     EDUCATION = [
-        {'school': 'Stevens Institute of Technology WEEK 8 CHANGE', 'title': 'Bachelor of Science in Computer Science'},
+        {'school': 'Stevens Institute of Technology WEEK 8 CHANGE | WEEK 8 DEPLOYMENT CHANGES', 'title': 'Bachelor of Science in Computer Science'},
     ]
     
     return template.render(title="Zidanni Clerigo", url=os.getenv("URL"), map="./static/img/zidanni-map.jpg", nav_items=nav_data, profile_picture="./static/img/zidanni.jpg", education=EDUCATION, experience=EXPERIENCE, about_me_text="Hello! I'm Zidanni Clerigo, an incoming second year Computer Science student at Stevens Institute of Technology. I'm super passionate about building projects and pitching them to other people! Deployment and maintenance has always been a roadblock for me so I'm very excited to be in the Production Engineering track.")
